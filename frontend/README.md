@@ -1,16 +1,31 @@
-# React + Vite
+# Nimisham — Frontend Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React.js single-page application built with Vite and Tailwind CSS for the Nimisham platform.
 
-Currently, two official plugins are available:
+## Features & Pages Implemented
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Authentication (`/login`, `/register`, `/forgot-password`, `/reset-password`)**: User registration, login, and password reset flows powered by JWT.
+- **User & Creator Profiles (`/profile`, `/profile/edit`)**: Profile viewing and editing, avatar URL updates, creator bio, and social links.
+- **Dashboard (`/dashboard`)**: Role-aware personalized dashboard for Users, Creators, and Admins.
+- **Home (`/`)**: Landing page showcasing featured artworks, platform highlights, and quick access.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Framework**: React 18 + Vite
+- **Styling**: Tailwind CSS + Custom Design System (`STYLE.md`)
+- **Routing**: React Router DOM v6
+- **Icons**: Lucide React
+- **HTTP Client**: Axios
 
-## Expanding the Oxlint configuration
+## Scripts
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```bash
+# Start development server
+npm run dev
+
+# Build production bundle
+npm run build
+
+# Preview build
+npm run preview
+```

@@ -10,7 +10,8 @@ import Button from '../../components/ui/Button';
 import LoadingScreen from '../../components/feedback/LoadingScreen';
 import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
-
+import MyArtworksSection from './MyArtworksSection';
+import MyTutorialsSection from './MyTutorialsSection';
 export default function ProfilePage() {
   const { username } = useParams();
   const { user: currentUser } = useAuth();
@@ -146,6 +147,11 @@ export default function ProfilePage() {
       {/* Divider */}
       <hr className="border-t border-nim-border" />
 
+      {/* User's Uploaded Artworks */}
+      {isOwnProfile && (
+        <MyArtworksSection userId={profile._id} />
+      )}
+
       {/* Future Sections (Placeholders for Phase 1) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <section>
@@ -160,17 +166,7 @@ export default function ProfilePage() {
           />
         </section>
 
-        <section>
-          <div className="flex items-center gap-2 mb-6">
-            <BookOpen className="w-5 h-5 text-nim-text-muted" />
-            <h3 className="text-h4 text-nim-text">Tutorials</h3>
-          </div>
-          <EmptyState 
-            title="No tutorials" 
-            description={`${isOwnProfile ? 'You haven\'t' : profile.name + ' hasn\'t'} published any tutorials yet.`}
-            className="bg-nim-surface border border-nim-border rounded-nim-lg"
-          />
-        </section>
+        <MyTutorialsSection userId={profile._id} isOwnProfile={isOwnProfile} />
       </div>
     </div>
   );

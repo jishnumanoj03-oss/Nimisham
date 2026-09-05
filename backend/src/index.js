@@ -9,6 +9,19 @@ import errorHandler from './middleware/errorHandler.js';
 // Route imports
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
+import artworkRoutes from './routes/artwork.routes.js';
+import processRoutes from './routes/process.routes.js';
+import portfolioRoutes from './routes/portfolio.routes.js';
+import tutorialRoutes from './routes/tutorial.routes.js';
+import resourceRoutes from './routes/resource.routes.js';
+import promptRoutes from './routes/prompt.routes.js';
+import interactionRoutes from './routes/interaction.routes.js';
+import searchRoutes from './routes/search.routes.js';
+import marketplaceRoutes from './routes/marketplace.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
+import deliveryRoutes from './routes/delivery.routes.js';
+import orderRoutes from './routes/order.routes.js';
+import { stripeWebhook } from './controllers/payment.controller.js';
 
 const app = express();
 
@@ -29,6 +42,9 @@ app.use(cors({
   credentials: true,
 }));
 
+// ── Stripe Webhook (Must be before express.json) ──
+app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
+
 // ── Parsing Middleware ──
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -46,6 +62,18 @@ app.get('/api/health', (req, res) => {
 // ── API Routes ──
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/artworks', artworkRoutes);
+app.use('/api/creative-process', processRoutes);
+app.use('/api/portfolios', portfolioRoutes);
+app.use('/api/tutorials', tutorialRoutes);
+app.use('/api/resources', resourceRoutes);
+app.use('/api/prompts', promptRoutes);
+app.use('/api/interactions', interactionRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/marketplace', marketplaceRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/delivery', deliveryRoutes);
+app.use('/api/orders', orderRoutes);
 
 // ── 404 Handler ──
 app.use((req, res) => {

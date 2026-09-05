@@ -49,6 +49,10 @@ export default function Navbar() {
 
   const navLinks = [
     { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Tutorials', path: '/tutorials' },
+    { label: 'Resources', path: '/resources' },
+    { label: 'AI Prompts', path: '/prompts' },
+    { label: 'Portfolios', path: '/portfolios' },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -134,6 +138,24 @@ export default function Navbar() {
                           >
                             <User className="w-4 h-4" />
                             Profile
+                          </Link>
+                          <Link
+                            to="/artwork/upload"
+                            className="flex items-center gap-3 px-4 py-2.5 text-small text-nim-text-secondary hover:bg-nim-hover hover:text-nim-text transition-colors"
+                          >
+                            Upload Artwork
+                          </Link>
+                          <Link
+                            to="/tutorials/editor"
+                            className="flex items-center gap-3 px-4 py-2.5 text-small text-nim-text-secondary hover:bg-nim-hover hover:text-nim-text transition-colors"
+                          >
+                            Write Tutorial
+                          </Link>
+                          <Link
+                            to="/resources/upload"
+                            className="flex items-center gap-3 px-4 py-2.5 text-small text-nim-text-secondary hover:bg-nim-hover hover:text-nim-text transition-colors"
+                          >
+                            Upload Resource
                           </Link>
                           <button
                             onClick={handleLogout}
