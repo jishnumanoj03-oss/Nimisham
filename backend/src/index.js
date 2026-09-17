@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import env from './config/env.js';
 import connectDB from './config/db.js';
 import errorHandler from './middleware/errorHandler.js';
+import http from 'http';
+import { Server } from 'socket.io';
 
 // Route imports
 import authRoutes from './routes/auth.routes.js';
@@ -21,9 +23,47 @@ import marketplaceRoutes from './routes/marketplace.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import deliveryRoutes from './routes/delivery.routes.js';
 import orderRoutes from './routes/order.routes.js';
+import sessionRoutes from './routes/session.routes.js';
 import { stripeWebhook } from './controllers/payment.controller.js';
 
 const app = express();
+const httpServer = http.createServer(app);
+
+// ── Socket.io Setup ──
+const io = new Server(httpServer, {
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (env.NODE_ENV === 'development' && /^http:\/\/localhost:\d+$/.test(origin)) {
+        return callback(null, true);
+      }
+      if (origin === env.FRONTEND_URL) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  }
+});
+
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+io.on('connection', (socket) => {
+  socket.on('join-session', (sessionId) => {
+    socket.join(sessionId);
+  });
+
+  socket.on('leave-session', (sessionId) => {
+    socket.leave(sessionId);
+  });
+
+  socket.on('send-message', (data) => {
+    io.to(data.sessionId).emit('receive-message', data);
+  });
+});
 
 // ── Security Middleware ──
 app.use(helmet());
@@ -74,6 +114,7 @@ app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/sessions', sessionRoutes);
 
 // ── 404 Handler ──
 app.use((req, res) => {
@@ -88,7 +129,7 @@ const startServer = async () => {
   await connectDB();
 
   const PORT = env.PORT;
-  const server = app.listen(PORT, () => {
+  const server = httpServer.listen(PORT, () => {
     console.log(`\n✓ Nimisham API running on port ${PORT}`);
     console.log(`  Environment: ${env.NODE_ENV}`);
     console.log(`  Frontend URL: ${env.FRONTEND_URL}\n`);
