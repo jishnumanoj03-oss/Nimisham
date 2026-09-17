@@ -208,11 +208,7 @@ export const deleteArtwork = async (req, res, next) => {
     await Comment.deleteMany({ contentId: artwork._id, onModel: 'Artwork' });
     await Bookmark.deleteMany({ contentId: artwork._id, onModel: 'Artwork' });
 
-    // 3. Remove from Portfolios
-    await Portfolio.updateMany(
-      {},
-      { $pull: { featuredWorks: artwork._id, items: artwork._id } }
-    );
+    // 3. Remove from Portfolios (Deprecated: Portfolios no longer store artwork references)
 
     // 4. Nullify Product references (Preserve historical purchase records)
     await Product.updateMany(
