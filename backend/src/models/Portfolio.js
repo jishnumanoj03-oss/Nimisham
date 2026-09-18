@@ -15,36 +15,23 @@ const portfolioSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      maxlength: [500, 'Description cannot exceed 500 characters'],
+      maxlength: [300, 'Description cannot exceed 300 characters'],
       default: '',
-    },
-    theme: {
-      type: String,
-      default: 'default',
     },
     coverImage: {
       url: String,
       publicId: String,
     },
-    categories: {
-      type: [String],
-      default: [],
-    },
-    featuredWorks: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Artwork',
-      },
-    ],
-    items: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Artwork',
-      },
-    ],
-    isPublic: {
-      type: Boolean,
-      default: true,
+    websiteUrl: {
+      type: String,
+      required: [true, 'Website URL is required'],
+      trim: true,
+      validate: {
+        validator: function(v) {
+          return /^(https?:\/\/)/i.test(v);
+        },
+        message: 'Website URL must be a valid HTTP/HTTPS URL',
+      }
     },
   },
   {
