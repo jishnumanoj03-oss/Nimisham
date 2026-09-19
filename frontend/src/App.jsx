@@ -50,6 +50,9 @@ import CartPage from './pages/marketplace/CartPage';
 import MyPurchasesPage from './pages/dashboard/MyPurchasesPage';
 import OrderHistoryPage from './pages/dashboard/OrderHistoryPage';
 
+// Phase 5 Pages
+import LiveSessionPage from './pages/live/LiveSessionPage';
+
 export default function App() {
   return (
     <ThemeProvider>
@@ -94,6 +97,9 @@ export default function App() {
               <Route path="/cart" element={<CartPage />} />
               <Route path="/dashboard/purchases" element={<MyPurchasesPage />} />
               <Route path="/dashboard/orders" element={<OrderHistoryPage />} />
+              
+              {/* Phase 5 Protected Routes */}
+              <Route path="/live/:id" element={<LiveSessionPage />} />
             </Route>
 
             {/* Public Profiles and Artworks (with AppLayout but accessible without auth) */}

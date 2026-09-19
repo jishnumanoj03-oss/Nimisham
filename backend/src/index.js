@@ -52,16 +52,38 @@ app.use((req, res, next) => {
 });
 
 io.on('connection', (socket) => {
-  socket.on('join-session', (sessionId) => {
+  socket.on('join-room', ({ sessionId, user }) => {
+    if (!sessionId || !user) return;
     socket.join(sessionId);
+    
+    socket.to(sessionId).emit('receive-message', {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+      isSystemMessage: true,
+      message: `${user.name || user.username} joined the session.`
+    });
   });
 
-  socket.on('leave-session', (sessionId) => {
+  socket.on('leave-room', ({ sessionId, user }) => {
+    if (!sessionId || !user) return;
     socket.leave(sessionId);
+    
+    socket.to(sessionId).emit('receive-message', {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+      isSystemMessage: true,
+      message: `${user.name || user.username} left the session.`
+    });
   });
 
   socket.on('send-message', (data) => {
-    io.to(data.sessionId).emit('receive-message', data);
+    if (!data.message || !data.message.trim() || !data.sessionId || !data.user) return;
+    
+    io.to(data.sessionId).emit('receive-message', {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+      userId: data.user._id,
+      username: data.user.name || data.user.username,
+      message: data.message.substring(0, 500),
+      timestamp: new Date()
+    });
   });
 });
 

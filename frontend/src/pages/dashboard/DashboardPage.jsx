@@ -1,6 +1,8 @@
 import { useAuth } from '../../hooks/useAuth';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { sessionService } from '../../services/sessionService';
+import toast from 'react-hot-toast';
 import { 
   Plus, 
   Image as ImageIcon, 
@@ -8,12 +10,30 @@ import {
   FolderPlus, 
   DownloadCloud, 
   Bot, 
-  Compass 
+  Compass,
+  Video
 } from 'lucide-react';
 import Card from '../../components/ui/Card';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleCreateSession = async () => {
+    try {
+      const loadingToast = toast.loading('Creating session...');
+      const response = await sessionService.createSession({
+        title: `${user.name || user.username}'s Live Session`,
+        scheduledStartTime: new Date().toISOString()
+      });
+      toast.dismiss(loadingToast);
+      toast.success('Session created!');
+      navigate(`/live/${response.data.data._id}`);
+    } catch (error) {
+      toast.error('Failed to create session');
+      console.error(error);
+    }
+  };
 
   const timeGreeting = () => {
     const hour = new Date().getHours();
@@ -139,6 +159,13 @@ export default function DashboardPage() {
               >
                 Upload Artwork
               </Link>
+              <button 
+                onClick={handleCreateSession}
+                className="flex items-center gap-2 px-5 py-2.5 bg-red-500/10 border border-red-500/50 text-red-500 rounded-nim-md font-medium text-small hover:bg-red-500/20 transition-colors"
+              >
+                <Video className="w-4 h-4" />
+                Start Live Session
+              </button>
               <Link 
                 to="/tutorials" 
                 className="px-5 py-2.5 bg-nim-elevated border border-nim-border text-nim-text rounded-nim-md font-medium text-small hover:bg-nim-hover transition-colors"
