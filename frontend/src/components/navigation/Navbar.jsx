@@ -58,6 +58,15 @@ export default function Navbar() {
     { label: 'Resources', path: '/resources' },
     { label: 'AI Prompts', path: '/prompts' },
     { label: 'Portfolios', path: '/portfolios' },
+    ...(user ? [{
+      label: (
+        <div className="flex items-center gap-2">
+          <Avatar src={user.avatar} name={user.name || ''} size="sm" className="!w-5 !h-5 !text-[10px]" />
+          <span>Profile</span>
+        </div>
+      ),
+      path: `/profile/${user.username}`
+    }] : []),
   ];
 
   const publicNavLinks = [
