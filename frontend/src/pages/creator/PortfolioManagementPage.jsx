@@ -5,17 +5,19 @@ import toast from 'react-hot-toast';
 import api from '../../services/api';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
+import { useAuth } from '../../hooks/useAuth';
 
 const PortfolioManagementPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [portfolios, setPortfolios] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchPortfolios = async () => {
+      if (!user) return;
       try {
-        const { data } = await api.get('/auth/me'); // To get current user ID
-        const res = await api.get(`/portfolios?creator=${data.data._id}`);
+        const res = await api.get(`/portfolios?creator=${user._id}`);
         setPortfolios(res.data.data);
       } catch (error) {
         toast.error('Failed to load portfolios');
@@ -25,7 +27,7 @@ const PortfolioManagementPage = () => {
     };
 
     fetchPortfolios();
-  }, []);
+  }, [user]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this portfolio?')) return;
@@ -84,11 +86,6 @@ const PortfolioManagementPage = () => {
                     <Layout size={48} className="opacity-20" />
                   </div>
                 )}
-                {!portfolio.isPublic && (
-                  <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-xs font-medium px-2 py-1 rounded text-white">
-                    Private
-                  </div>
-                )}
               </div>
               
               <div className="p-5 flex-1 flex flex-col">
@@ -97,9 +94,10 @@ const PortfolioManagementPage = () => {
                   {portfolio.description || 'No description provided.'}
                 </p>
                 
-                <div className="flex items-center justify-between text-sm text-text-muted mb-4 pt-4 border-t border-border/50">
-                  <span>{portfolio.items?.length || 0} Artworks</span>
-                  <span>{portfolio.categories?.length || 0} Categories</span>
+                <div className="flex justify-end mb-4 pt-4 border-t border-border/50">
+                  <a href={portfolio.websiteUrl} target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" size="sm">Portfolio</Button>
+                  </a>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-2">
