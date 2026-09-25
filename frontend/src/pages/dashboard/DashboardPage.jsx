@@ -102,9 +102,7 @@ export default function DashboardPage() {
           </h1>
         </motion.div>
         
-        <div className="flex items-center gap-3">
-          <Badge variant="accent">Phase 2 Active</Badge>
-        </div>
+
       </section>
 
       {/* Quick Actions */}
@@ -180,16 +178,4 @@ export default function DashboardPage() {
   );
 }
 
-// Inline badge for the dashboard
-function Badge({ children, variant = 'default' }) {
-  const variantClasses = {
-    default: 'bg-nim-elevated text-nim-text-secondary border border-nim-border',
-    accent: 'bg-nim-accent-muted text-nim-accent border border-nim-accent/20',
-  };
 
-  return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-nim-sm text-xs font-semibold uppercase tracking-wider ${variantClasses[variant]}`}>
-      {children}
-    </span>
-  );
-}
