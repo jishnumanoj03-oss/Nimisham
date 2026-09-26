@@ -4,7 +4,7 @@ import { Camera, Bot, Calendar, Eye, Share2, ArrowLeft, Edit } from 'lucide-reac
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import Button from '../../components/ui/Button';
-import WorkflowTimeline from '../../components/ui/WorkflowTimeline';
+
 import Avatar from '../../components/ui/Avatar';
 import Badge from '../../components/ui/Badge';
 import LikeButton from '../../components/interaction/LikeButton';
@@ -19,7 +19,7 @@ const ArtworkDetailsPage = () => {
   const navigate = useNavigate();
   
   const [artwork, setArtwork] = useState(null);
-  const [creativeProcess, setCreativeProcess] = useState(null);
+
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
 
@@ -35,12 +35,7 @@ const ArtworkDetailsPage = () => {
         const artRes = await api.get(`/artworks/${id}`);
         setArtwork(artRes.data.data);
 
-        try {
-          const procRes = await api.get(`/creative-process/artwork/${id}`);
-          setCreativeProcess(procRes.data.data);
-        } catch (e) {
-          // Process might not exist
-        }
+
       } catch (error) {
         toast.error('Artwork not found or private');
         navigate('/');
@@ -123,64 +118,7 @@ const ArtworkDetailsPage = () => {
             </div>
           </div>
 
-          {/* Creative Process Section */}
-          <div className="space-y-8 pt-8 border-t border-border">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-serif text-text-primary">Creative Process</h2>
-              {isOwner && (
-                <Button variant="secondary" size="sm" onClick={() => navigate(`/creative-process/${artwork._id}`)}>
-                  {creativeProcess ? 'Edit Process' : 'Document Process'}
-                </Button>
-              )}
-            </div>
 
-            {creativeProcess ? (
-              <div className="space-y-10">
-                {/* Inspiration */}
-                {(creativeProcess.inspiration?.text || creativeProcess.inspiration?.goal) && (
-                  <div className="bg-accent/5 border border-accent/20 p-6 rounded-xl space-y-4">
-                    <h3 className="text-lg font-medium text-accent">Inspiration & Concept</h3>
-                    {creativeProcess.inspiration.goal && (
-                      <p className="font-medium text-text-primary">Goal: {creativeProcess.inspiration.goal}</p>
-                    )}
-                    {creativeProcess.inspiration.text && (
-                      <p className="text-text-secondary leading-relaxed">{creativeProcess.inspiration.text}</p>
-                    )}
-                  </div>
-                )}
-                
-                {/* Workflow Timeline */}
-                {creativeProcess.workflowSteps && creativeProcess.workflowSteps.length > 0 && (
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-medium text-text-primary">Workflow</h3>
-                    <WorkflowTimeline steps={creativeProcess.workflowSteps} />
-                  </div>
-                )}
-
-                {/* Reflections */}
-                {(creativeProcess.creativeNotes || creativeProcess.lessonsLearned) && (
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    {creativeProcess.creativeNotes && (
-                      <div className="bg-bg-secondary p-6 rounded-xl border border-border">
-                        <h3 className="text-sm font-medium text-text-primary uppercase tracking-wider mb-2">Notes</h3>
-                        <p className="text-text-secondary text-sm leading-relaxed">{creativeProcess.creativeNotes}</p>
-                      </div>
-                    )}
-                    {creativeProcess.lessonsLearned && (
-                      <div className="bg-bg-secondary p-6 rounded-xl border border-border">
-                        <h3 className="text-sm font-medium text-text-primary uppercase tracking-wider mb-2">Learnings</h3>
-                        <p className="text-text-secondary text-sm leading-relaxed">{creativeProcess.lessonsLearned}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center p-8 bg-bg-secondary border border-border border-dashed rounded-xl">
-                <p className="text-text-muted">The creative process for this artwork hasn't been documented yet.</p>
-              </div>
-            )}
-          </div>
 
           {/* Comments Section */}
           <CommentSection contentId={artwork._id} onModel="Artwork" />
