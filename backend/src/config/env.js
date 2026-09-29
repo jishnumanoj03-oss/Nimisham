@@ -14,6 +14,7 @@ const env = {
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY,
 };
 
 // Validate critical env vars in production

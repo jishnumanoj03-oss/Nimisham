@@ -53,6 +53,9 @@ import OrderHistoryPage from './pages/dashboard/OrderHistoryPage';
 // Phase 5 Pages
 import LiveSessionPage from './pages/live/LiveSessionPage';
 
+// Widgets
+import ChatbotWidget from './components/chat/ChatbotWidget';
+
 export default function App() {
   return (
     <ThemeProvider>
@@ -128,6 +131,8 @@ export default function App() {
           </Routes>
         </BrowserRouter>
         </CartProvider>
+
+        <ChatbotWidget />
 
         {/* Global Toast Notifications */}
         <Toaster
