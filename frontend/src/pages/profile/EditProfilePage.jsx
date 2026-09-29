@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Save } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
@@ -34,6 +34,17 @@ export default function EditProfilePage() {
   
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    };
+  }, [avatarPreview]);
 
   // Load current user data
   useEffect(() => {
@@ -63,6 +74,47 @@ export default function EditProfilePage() {
 
   const handleSocialChange = (newLinks) => {
     setForm({ ...form, socialLinks: newLinks });
+  };
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload a valid image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be smaller than 5MB');
+      return;
+    }
+
+    setAvatarPreview(URL.createObjectURL(file));
+    setAvatarFile(file);
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!avatarFile) return;
+    setUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append('avatar', avatarFile);
+      const res = await userService.uploadAvatar(formData);
+      updateUser(res.data.user);
+      setForm(prev => ({ ...prev, avatar: res.data.user.avatar }));
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      toast.success('Profile photo updated successfully');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Unable to upload profile photo');
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const validate = () => {
@@ -123,15 +175,33 @@ export default function EditProfilePage() {
         {/* Basic Info Section */}
         <section className="space-y-6">
           <div className="flex items-center gap-6 pb-6 border-b border-nim-border">
-            <Avatar src={form.avatar} name={form.name} size="xl" />
-            <div className="flex-1">
-              <Input
-                label="Avatar URL (Temporary placeholder for Phase 1)"
-                name="avatar"
-                placeholder="https://example.com/avatar.jpg"
-                value={form.avatar}
-                onChange={handleChange}
-              />
+            <div className="relative group cursor-pointer shrink-0" onClick={handleAvatarClick} title="Change Profile Photo">
+              <Avatar src={avatarPreview || form.avatar} name={form.name} size="xl" className="w-24 h-24 md:w-32 md:h-32 group-hover:opacity-80 transition-opacity" />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-white text-xs font-medium">Change</span>
+              </div>
+            </div>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              className="hidden" 
+              accept="image/jpeg,image/png,image/webp" 
+              onChange={handleFileChange} 
+            />
+            <div className="flex-1 flex flex-col items-start gap-2">
+              <h3 className="text-h4 text-nim-text">Profile Photo</h3>
+              <p className="text-small text-nim-text-secondary">Recommended: Square image, max 5MB.</p>
+              {avatarFile && (
+                <Button 
+                  type="button"
+                  size="sm" 
+                  onClick={handleAvatarUpload} 
+                  loading={uploadingAvatar}
+                  disabled={uploadingAvatar}
+                >
+                  Save Photo
+                </Button>
+              )}
             </div>
           </div>
 
