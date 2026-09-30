@@ -14,6 +14,7 @@ import EmptyState from '../../components/ui/EmptyState';
 import MyArtworksSection from './MyArtworksSection';
 import MyTutorialsSection from './MyTutorialsSection';
 import MyProductsSection from './MyProductsSection';
+import MyPortfoliosSection from './MyPortfoliosSection';
 export default function ProfilePage() {
   const { username } = useParams();
   const { user: currentUser } = useAuth();
@@ -223,17 +224,7 @@ export default function ProfilePage() {
 
       {/* Future Sections (Placeholders for Phase 1) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <section>
-          <div className="flex items-center gap-2 mb-6">
-            <ImageIcon className="w-5 h-5 text-nim-text-muted" />
-            <h3 className="text-h4 text-nim-text">Portfolio</h3>
-          </div>
-          <EmptyState 
-            title="No works yet" 
-            description={`${isOwnProfile ? 'You haven\'t' : profile.name + ' hasn\'t'} uploaded any artwork or photography yet.`}
-            className="bg-nim-surface border border-nim-border rounded-nim-lg"
-          />
-        </section>
+        <MyPortfoliosSection userId={profile._id} isOwnProfile={isOwnProfile} profileName={profile.name} />
 
         <MyTutorialsSection userId={profile._id} isOwnProfile={isOwnProfile} />
       </div>
