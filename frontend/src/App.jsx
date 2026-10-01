@@ -21,6 +21,8 @@ import DashboardPage from './pages/dashboard/DashboardPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import EditProfilePage from './pages/profile/EditProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminRoute from './components/auth/AdminRoute';
 
 // Phase 2A Pages
 import ArtworkUploadPage from './pages/creator/ArtworkUploadPage';
@@ -103,6 +105,17 @@ export default function App() {
               
               {/* Phase 5 Protected Routes */}
               <Route path="/live/:id" element={<LiveSessionPage />} />
+            </Route>
+
+            {/* Admin Routes */}
+            <Route
+              element={
+                <AdminRoute>
+                  <AppLayout />
+                </AdminRoute>
+              }
+            >
+              <Route path="/admin" element={<AdminDashboard />} />
             </Route>
 
             {/* Public Profiles and Artworks (with AppLayout but accessible without auth) */}
