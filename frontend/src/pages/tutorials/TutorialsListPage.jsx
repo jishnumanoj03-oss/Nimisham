@@ -75,7 +75,7 @@ export default function TutorialsListPage() {
               onChange={(e) => setCategory(e.target.value)}
             >
               {CATEGORIES.map(c => (
-                <option key={c} value={c}>{c === 'All' ? 'All Categories' : c}</option>
+                <option key={c} value={c} className="dark:text-black">{c === 'All' ? 'All Categories' : c}</option>
               ))}
             </select>
             
@@ -85,7 +85,7 @@ export default function TutorialsListPage() {
               onChange={(e) => setDifficulty(e.target.value)}
             >
               {DIFFICULTIES.map(d => (
-                <option key={d} value={d}>{d === 'All' ? 'All Difficulties' : d}</option>
+                <option key={d} value={d} className="dark:text-black">{d === 'All' ? 'All Difficulties' : d}</option>
               ))}
             </select>
           </div>
