@@ -26,6 +26,8 @@ import orderRoutes from './routes/order.routes.js';
 import sessionRoutes from './routes/session.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import notificationRoutes from './routes/notification.routes.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 import { stripeWebhook } from './controllers/payment.controller.js';
 
 const app = express();
@@ -141,6 +143,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // ── 404 Handler ──
 app.use((req, res) => {

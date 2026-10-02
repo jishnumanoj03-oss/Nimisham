@@ -3,6 +3,7 @@ import Like from '../models/Like.js';
 import Comment from '../models/Comment.js';
 import Bookmark from '../models/Bookmark.js';
 import Follow from '../models/Follow.js';
+import Notification from '../models/Notification.js';
 import { AppError } from '../middleware/errorHandler.js';
 
 // --- LIKE / UNLIKE ---
@@ -40,6 +41,23 @@ export const toggleLike = async (req, res, next) => {
         content.likes += 1;
         await content.save();
       }
+
+      // Create Notification
+      if (content.creator && content.creator.toString() !== userId.toString()) {
+        try {
+          await Notification.create({
+            recipient: content.creator,
+            sender: userId,
+            type: 'like',
+            message: `${req.user.name || req.user.username || 'Someone'} liked your ${onModel.toLowerCase()}.`,
+            entityType: onModel,
+            entityId: content._id
+          });
+        } catch (notifErr) {
+          console.error('Notification creation failed:', notifErr);
+        }
+      }
+
       return res.status(200).json({ message: 'Liked successfully', liked: true });
     }
   } catch (error) {
@@ -85,6 +103,22 @@ export const addComment = async (req, res, next) => {
     });
 
     await comment.populate('user', 'name username avatar');
+
+    // Create Notification
+    if (targetContent.creator && targetContent.creator.toString() !== userId.toString()) {
+      try {
+        await Notification.create({
+          recipient: targetContent.creator,
+          sender: userId,
+          type: 'comment',
+          message: `${req.user.name || req.user.username || 'Someone'} commented on your ${onModel.toLowerCase()}.`,
+          entityType: onModel,
+          entityId: targetContent._id
+        });
+      } catch (notifErr) {
+        console.error('Notification creation failed:', notifErr);
+      }
+    }
 
     res.status(201).json({ message: 'Comment added successfully', comment });
   } catch (error) {
@@ -210,6 +244,21 @@ export const toggleFollow = async (req, res, next) => {
     } else {
       // Follow
       await Follow.create({ follower: userId, following: targetUserId });
+
+      // Create Notification
+      try {
+        await Notification.create({
+          recipient: targetUserId,
+          sender: userId,
+          type: 'follow',
+          message: `${req.user.name || req.user.username || 'Someone'} started following you.`,
+          entityType: 'User',
+          entityId: userId
+        });
+      } catch (notifErr) {
+        console.error('Notification creation failed:', notifErr);
+      }
+
       return res.status(200).json({ message: 'Followed successfully', following: true });
     }
   } catch (error) {

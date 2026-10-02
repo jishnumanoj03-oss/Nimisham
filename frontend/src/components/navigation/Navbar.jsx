@@ -15,6 +15,7 @@ import {
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import Avatar from '../ui/Avatar';
+import NotificationDropdown from './NotificationDropdown';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -103,6 +104,8 @@ export default function Navbar() {
 
             {isAuthenticated ? (
               <>
+                <NotificationDropdown />
+                
                 {/* Profile dropdown */}
                 <div className="relative" ref={profileRef}>
                   <button

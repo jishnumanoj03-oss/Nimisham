@@ -26,7 +26,7 @@ export const downloadProduct = async (req, res, next) => {
     const { productId } = req.params;
     const userId = req.user._id;
 
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId).select('+downloadUrl');
     
     if (!product) {
       throw new AppError('Product not found', 404);

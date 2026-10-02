@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Eye, EyeOff, Tag, Image as ImageIcon, Link as LinkIcon, Download } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, Tag, Image as ImageIcon, Link as LinkIcon, Download, BarChart2, TrendingUp, DollarSign, Package } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import marketplaceService from '../../services/marketplaceService';
+import analyticsService from '../../services/analyticsService';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
@@ -11,6 +12,11 @@ const SellerDashboard = () => {
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const [stats, setStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [statsError, setStatsError] = useState(null);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
@@ -30,7 +36,22 @@ const SellerDashboard = () => {
 
   useEffect(() => {
     fetchProducts();
+    fetchStats();
   }, []);
+
+  const fetchStats = async () => {
+    setLoadingStats(true);
+    setStatsError(null);
+    try {
+      const data = await analyticsService.getCreatorStats();
+      setStats(data.data);
+    } catch (error) {
+      setStatsError('Unable to load analytics.');
+      console.error(error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -122,6 +143,80 @@ const SellerDashboard = () => {
         <Button onClick={() => handleOpenModal()} className="flex items-center gap-2">
           <Plus size={20} /> New Product
         </Button>
+      </div>
+
+      {/* Analytics Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 flex items-center gap-2">
+          <BarChart2 className="w-5 h-5 text-primary-500" /> Performance Overview
+        </h2>
+        
+        {loadingStats ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="h-24 bg-gray-100 animate-pulse rounded-xl"></div>
+            ))}
+          </div>
+        ) : statsError ? (
+          <div className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100">
+            {statsError}
+          </div>
+        ) : stats ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                <span className="text-gray-500 text-sm font-medium flex items-center gap-1.5"><Eye className="w-4 h-4"/> Total Views</span>
+                <span className="text-2xl font-bold text-gray-900 mt-2">{stats.totalViews.toLocaleString()}</span>
+              </div>
+              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                <span className="text-gray-500 text-sm font-medium flex items-center gap-1.5"><TrendingUp className="w-4 h-4"/> Total Sales</span>
+                <span className="text-2xl font-bold text-gray-900 mt-2">{stats.totalSales.toLocaleString()}</span>
+              </div>
+              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                <span className="text-gray-500 text-sm font-medium flex items-center gap-1.5"><DollarSign className="w-4 h-4"/> Total Revenue</span>
+                <span className="text-2xl font-bold text-gray-900 mt-2">${stats.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              </div>
+              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                <span className="text-gray-500 text-sm font-medium flex items-center gap-1.5"><Package className="w-4 h-4"/> Total Products</span>
+                <span className="text-2xl font-bold text-gray-900 mt-2">{stats.totalProducts.toLocaleString()}</span>
+              </div>
+            </div>
+            
+            {/* Simple Visualization */}
+            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-8">
+              <h3 className="text-sm font-semibold text-gray-900 mb-4">Relative Performance Metrics</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-gray-600 font-medium">Views</span>
+                    <span className="font-medium text-gray-900">{stats.totalViews}</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-2.5">
+                    <div className="bg-blue-500 h-2.5 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, Math.log10(stats.totalViews + 1) * 20)}%` }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-gray-600 font-medium">Sales</span>
+                    <span className="font-medium text-gray-900">{stats.totalSales}</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-2.5">
+                    <div className="bg-green-500 h-2.5 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, Math.log10(stats.totalSales + 1) * 25)}%` }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-gray-600 font-medium">Revenue</span>
+                    <span className="font-medium text-gray-900">${stats.totalRevenue.toFixed(2)}</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-2.5">
+                    <div className="bg-purple-500 h-2.5 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, Math.log10(stats.totalRevenue + 1) * 20)}%` }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : null}
       </div>
 
       {loading ? (

@@ -215,10 +215,22 @@ export const downloadResource = async (req, res, next) => {
       return next(new ErrorResponse('Resource not found', 404));
     }
 
-    // Temporary logic: Allow downloading all resources until marketplace is built
+    let user = null;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      const token = req.headers.authorization.split(' ')[1];
+      try {
+        const jwt = await import('jsonwebtoken');
+        const env = await import('../config/env.js');
+        const decoded = jwt.default.verify(token, env.default.JWT_SECRET);
+        const User = await import('../models/User.js');
+        user = await User.default.findById(decoded.id);
+      } catch (e) {}
+    }
+
     if (resource.isPaid) {
-      // In Phase 4, we'll verify purchase here
-      // For now, we just log a message or allow it for testing
+      if (!user || (resource.creator.toString() !== user.id && user.role !== 'admin')) {
+        return next(new AppError('This is a paid resource. Please access it via your purchases.', 403));
+      }
     }
 
     // Increment download count
