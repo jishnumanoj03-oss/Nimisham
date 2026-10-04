@@ -46,6 +46,7 @@ import PromptCollectionDetailPage from './pages/prompts/PromptCollectionDetailPa
 import SearchPage from './pages/search/SearchPage';
 
 // Phase 4 Pages
+import MarketplacePage from './pages/marketplace/MarketplacePage';
 import SellerDashboard from './pages/marketplace/SellerDashboard';
 import ProductDetailsPage from './pages/marketplace/ProductDetailsPage';
 import CartPage from './pages/marketplace/CartPage';
@@ -136,6 +137,7 @@ export default function App() {
               <Route path="/search" element={<SearchPage />} />
               
               {/* Phase 4 Public Routes */}
+              <Route path="/marketplace" element={<MarketplacePage />} />
               <Route path="/product/:id" element={<ProductDetailsPage />} />
             </Route>
 

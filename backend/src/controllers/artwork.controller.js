@@ -5,7 +5,10 @@ import Bookmark from '../models/Bookmark.js';
 import Portfolio from '../models/Portfolio.js';
 import CreativeProcess from '../models/CreativeProcess.js';
 import Product from '../models/Product.js';
+import ArtworkRating from '../models/ArtworkRating.js';
 import { uploadImage, deleteImage } from '../utils/cloudinary.js';
+import jwt from 'jsonwebtoken';
+import env from '../config/env.js';
 
 export const uploadArtwork = async (req, res, next) => {
   try {
@@ -232,3 +235,111 @@ export const deleteArtwork = async (req, res, next) => {
     next(error);
   }
 };
+
+export const rateArtwork = async (req, res, next) => {
+  try {
+    const { id: artworkId } = req.params;
+    const { rating } = req.body;
+    const userId = req.user.id;
+
+    // Validate rating
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return res.status(400).json({ success: false, message: 'Rating must be an integer between 1 and 5' });
+    }
+
+    const artwork = await Artwork.findById(artworkId);
+    if (!artwork) {
+      return res.status(404).json({ success: false, message: 'Artwork not found' });
+    }
+
+    // Optional: Prevent self-rating
+    if (artwork.creator.toString() === userId) {
+      return res.status(403).json({ success: false, message: 'You cannot rate your own artwork' });
+    }
+
+    // Update or Create Rating
+    await ArtworkRating.findOneAndUpdate(
+      { artwork: artworkId, user: userId },
+      { rating },
+      { new: true, upsert: true, setDefaultsOnInsert: true, runValidators: true }
+    );
+
+    // Recalculate average rating
+    const stats = await ArtworkRating.aggregate([
+      { $match: { artwork: artwork._id } },
+      {
+        $group: {
+          _id: '$artwork',
+          ratingCount: { $sum: 1 },
+          ratingAverage: { $avg: '$rating' },
+        },
+      },
+    ]);
+
+    if (stats.length > 0) {
+      artwork.ratingCount = stats[0].ratingCount;
+      artwork.ratingAverage = stats[0].ratingAverage;
+    } else {
+      artwork.ratingCount = 0;
+      artwork.ratingAverage = 0;
+    }
+
+    await artwork.save();
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ratingAverage: artwork.ratingAverage,
+        ratingCount: artwork.ratingCount,
+        userRating: rating,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getArtworkRating = async (req, res, next) => {
+  try {
+    const { id: artworkId } = req.params;
+    const artwork = await Artwork.findById(artworkId);
+
+    if (!artwork) {
+      return res.status(404).json({ success: false, message: 'Artwork not found' });
+    }
+
+    let userRating = null;
+    let userId = null;
+
+    if (req.user) {
+      userId = req.user.id;
+    } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, env.JWT_SECRET);
+        userId = decoded.id;
+      } catch (err) {
+        // Ignore token errors, treat as unauthenticated
+      }
+    }
+
+    if (userId) {
+      const ratingDoc = await ArtworkRating.findOne({ artwork: artworkId, user: userId });
+      if (ratingDoc) {
+        userRating = ratingDoc.rating;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ratingAverage: artwork.ratingAverage || 0,
+        ratingCount: artwork.ratingCount || 0,
+        userRating,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

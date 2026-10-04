@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
+import { ThemeContext } from '../../context/ThemeContext';
 import { aiService } from '../../services/aiService';
 import { useAuth } from '../../hooks/useAuth';
 import { X, Send, User, Loader2 } from 'lucide-react';
@@ -7,7 +8,12 @@ import nimishamAiLogo from '../../assets/nimisham-ai-logo.png';
 
 export default function ChatbotWidget() {
   const { user } = useAuth();
+  const { theme } = useContext(ThemeContext);
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Invert theme: If main app is dark, chatbot is light, and vice versa.
+  const isAppDark = theme === 'dark' || !theme;
+  const chatbotThemeClass = isAppDark ? 'chatbot-light' : 'chatbot-dark';
   
   const defaultGreeting = "Hi! I'm Nimisham AI. I can help with photography, AI art, tutorials, creative workflows, and using the platform. How can I help?";
   
@@ -71,7 +77,7 @@ export default function ChatbotWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className={`fixed bottom-6 right-6 z-50 flex flex-col items-end ${chatbotThemeClass}`}>
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -79,13 +85,15 @@ export default function ChatbotWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="mb-4 w-[350px] sm:w-[400px] h-[500px] max-h-[80vh] flex flex-col bg-nim-bg-elevated border border-nim-border rounded-2xl shadow-xl overflow-hidden"
+            className="mb-4 w-[350px] sm:w-[400px] h-[500px] max-h-[80vh] flex flex-col bg-nim-bg-elevated border border-nim-border rounded-2xl shadow-xl overflow-hidden transition-colors duration-200"
           >
             {/* Header */}
-            <div className="p-4 bg-nim-primary text-nim-text flex justify-between items-center">
+            <div className="p-4 bg-nim-accent text-white flex justify-between items-center transition-colors duration-200">
               <div>
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <img src={nimishamAiLogo} alt="Nimisham AI" className="w-6 h-6 object-contain drop-shadow-sm" />
+                  <div className="bg-white/90 p-0.5 rounded-full shadow-sm">
+                    <img src={nimishamAiLogo} alt="Nimisham AI" className="w-5 h-5 object-contain" />
+                  </div>
                   Nimisham AI
                 </h3>
                 <p className="text-xs opacity-80">Ask me anything about Nimisham</p>
@@ -100,25 +108,29 @@ export default function ChatbotWidget() {
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-nim-bg">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-nim-bg transition-colors duration-200">
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
                   className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                    className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors duration-200 ${
                       msg.role === 'user'
-                        ? 'bg-nim-primary/20 text-nim-primary'
+                        ? 'bg-nim-accent/20 text-nim-accent'
                         : 'bg-nim-bg-elevated border border-nim-border text-nim-text'
                     }`}
                   >
-                    {msg.role === 'user' ? <User size={16} /> : <img src={nimishamAiLogo} alt="AI" className="w-5 h-5 object-contain" />}
+                    {msg.role === 'user' ? <User size={16} /> : (
+                      <div className="bg-white/80 p-0.5 rounded-full">
+                        <img src={nimishamAiLogo} alt="AI" className="w-4 h-4 object-contain" />
+                      </div>
+                    )}
                   </div>
                   <div
-                    className={`max-w-[75%] px-4 py-2 rounded-2xl ${
+                    className={`max-w-[75%] px-4 py-2 rounded-2xl transition-colors duration-200 ${
                       msg.role === 'user'
-                        ? 'bg-nim-primary text-white rounded-tr-none'
+                        ? 'bg-nim-accent text-white rounded-tr-none'
                         : 'bg-nim-bg-elevated border border-nim-border text-nim-text rounded-tl-none'
                     }`}
                   >
@@ -128,11 +140,13 @@ export default function ChatbotWidget() {
               ))}
               {isLoading && (
                 <div className="flex gap-3 flex-row">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-nim-bg-elevated border border-nim-border text-nim-text">
-                    <img src={nimishamAiLogo} alt="AI" className="w-5 h-5 object-contain" />
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-nim-bg-elevated border border-nim-border text-nim-text transition-colors duration-200">
+                    <div className="bg-white/80 p-0.5 rounded-full">
+                      <img src={nimishamAiLogo} alt="AI" className="w-4 h-4 object-contain" />
+                    </div>
                   </div>
-                  <div className="max-w-[75%] px-4 py-3 rounded-2xl bg-nim-bg-elevated border border-nim-border text-nim-text rounded-tl-none flex items-center gap-2">
-                    <Loader2 size={16} className="animate-spin text-nim-primary" />
+                  <div className="max-w-[75%] px-4 py-3 rounded-2xl bg-nim-bg-elevated border border-nim-border text-nim-text rounded-tl-none flex items-center gap-2 transition-colors duration-200">
+                    <Loader2 size={16} className="animate-spin text-nim-accent" />
                     <span className="text-sm opacity-70">AI is thinking...</span>
                   </div>
                 </div>
@@ -141,20 +155,20 @@ export default function ChatbotWidget() {
             </div>
 
             {/* Input Area */}
-            <div className="p-3 bg-nim-bg-elevated border-t border-nim-border">
+            <div className="p-3 bg-nim-bg-elevated border-t border-nim-border transition-colors duration-200">
               <div className="relative">
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Type a message..."
-                  className="w-full bg-nim-bg border border-nim-border rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-nim-primary resize-none h-[50px] custom-scrollbar"
+                  className="w-full bg-nim-bg border border-nim-border rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-nim-accent text-nim-text resize-none h-[50px] custom-scrollbar transition-colors duration-200"
                   rows={1}
                 />
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || isLoading}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-nim-primary text-white rounded-lg hover:bg-nim-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-nim-accent text-white rounded-lg hover:bg-nim-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                   aria-label="Send Message"
                 >
                   <Send size={16} />
@@ -170,10 +184,14 @@ export default function ChatbotWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 bg-nim-primary text-nim-text rounded-full shadow-xl flex items-center justify-center hover:bg-nim-primary-hover transition-colors overflow-hidden"
+        className="w-14 h-14 bg-nim-accent text-white rounded-full shadow-xl flex items-center justify-center hover:bg-nim-accent-hover transition-colors overflow-hidden border border-white/20"
         aria-label="Toggle AI Chat"
       >
-        {isOpen ? <X size={24} /> : <img src={nimishamAiLogo} alt="Nimisham AI Assistant" className="w-full h-full object-contain" />}
+        {isOpen ? <X size={24} /> : (
+          <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+            <img src={nimishamAiLogo} alt="Nimisham AI Assistant" className="w-5 h-5 object-contain" />
+          </div>
+        )}
       </motion.button>
     </div>
   );

@@ -76,6 +76,15 @@ const artworkSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    ratingAverage: {
+      type: Number,
+      default: 0,
+      set: (val) => Math.round(val * 10) / 10,
+    },
+    ratingCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

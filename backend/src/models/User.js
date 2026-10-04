@@ -58,11 +58,12 @@ const userSchema = new mongoose.Schema(
       default: [],
     },
     socialLinks: {
-      website: { type: String, default: '' },
+      whatsapp: { type: String, default: '' },
       instagram: { type: String, default: '' },
-      twitter: { type: String, default: '' },
-      github: { type: String, default: '' },
       youtube: { type: String, default: '' },
+      github: { type: String, default: '' },
+      website: { type: String, default: '' },
+      twitter: { type: String, default: '' },
     },
     isActive: {
       type: Boolean,

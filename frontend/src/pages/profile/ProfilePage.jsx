@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Calendar, Globe, Camera, MessageCircle, Code, Video, Image as ImageIcon, BookOpen } from 'lucide-react';
+import { MapPin, Calendar, Image as ImageIcon, BookOpen } from 'lucide-react';
+import { FaWhatsapp, FaInstagram, FaYoutube, FaGithub } from 'react-icons/fa';
 import { userService } from '../../services/userService';
 import { useAuth } from '../../hooks/useAuth';
 import Avatar from '../../components/ui/Avatar';
@@ -12,6 +13,7 @@ import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
 import MyArtworksSection from './MyArtworksSection';
 import MyTutorialsSection from './MyTutorialsSection';
+import MyProductsSection from './MyProductsSection';
 export default function ProfilePage() {
   const { username } = useParams();
   const { user: currentUser } = useAuth();
@@ -50,6 +52,47 @@ export default function ProfilePage() {
   };
 
   const hasSocialLinks = profile.socialLinks && Object.values(profile.socialLinks).some(val => val);
+
+  const getNormalizedUrl = (platform, input) => {
+    if (!input) return null;
+    
+    let val = input.trim();
+    if (val.toLowerCase().startsWith('javascript:') || val.toLowerCase().startsWith('data:') || val.toLowerCase().startsWith('vbscript:')) {
+      return null;
+    }
+    
+    if (platform === 'whatsapp') {
+      if (val.startsWith('http')) return val; // preserve full URL
+      const cleanNum = val.replace(/[^\d+]/g, ''); // Strip spaces, hyphens, parentheses
+      const finalNum = cleanNum.replace(/^\+/, ''); // Remove leading +
+      return `https://wa.me/${finalNum}`;
+    }
+    
+    if (platform === 'instagram') {
+      if (val.startsWith('http')) return val;
+      if (val.includes('instagram.com/')) return `https://${val.replace(/^www\./, '')}`;
+      const cleanUser = val.replace(/^@/, '');
+      return `https://instagram.com/${cleanUser}`;
+    }
+    
+    if (platform === 'github') {
+      if (val.startsWith('http')) return val;
+      if (val.includes('github.com/')) return `https://${val.replace(/^www\./, '')}`;
+      return `https://github.com/${val}`;
+    }
+    
+    if (platform === 'youtube') {
+      if (val.startsWith('http')) return val;
+      if (val.includes('youtube.com/')) return `https://${val.replace(/^www\./, '')}`;
+      if (val.startsWith('UC') && val.length === 24) {
+        return `https://youtube.com/channel/${val}`;
+      }
+      const handle = val.startsWith('@') ? val : `@${val}`;
+      return `https://youtube.com/${handle}`;
+    }
+    
+    return null;
+  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
@@ -102,29 +145,52 @@ export default function ProfilePage() {
           {/* Social Links */}
           {hasSocialLinks && (
             <div className="flex gap-4 pt-2">
-              {profile.socialLinks.website && (
-                <a href={profile.socialLinks.website} target="_blank" rel="noopener noreferrer" className="text-nim-text-muted hover:text-nim-text transition-colors">
-                  <Globe className="w-5 h-5" />
+              {profile.socialLinks?.whatsapp && (
+                <a 
+                  href={getNormalizedUrl('whatsapp', profile.socialLinks.whatsapp)} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-nim-text-muted hover:text-nim-text transition-colors p-1"
+                  aria-label="WhatsApp"
+                  title="WhatsApp"
+                >
+                  <FaWhatsapp className="w-5 h-5" />
                 </a>
               )}
-              {profile.socialLinks.instagram && (
-                <a href={profile.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-nim-text-muted hover:text-nim-text transition-colors">
-                  <Camera className="w-5 h-5" />
+              {profile.socialLinks?.instagram && (
+                <a 
+                  href={getNormalizedUrl('instagram', profile.socialLinks.instagram)} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-nim-text-muted hover:text-nim-text transition-colors p-1"
+                  aria-label="Instagram"
+                  title="Instagram"
+                >
+                  <FaInstagram className="w-5 h-5" />
                 </a>
               )}
-              {profile.socialLinks.twitter && (
-                <a href={profile.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-nim-text-muted hover:text-nim-text transition-colors">
-                  <MessageCircle className="w-5 h-5" />
+              {profile.socialLinks?.youtube && (
+                <a 
+                  href={getNormalizedUrl('youtube', profile.socialLinks.youtube)} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-nim-text-muted hover:text-nim-text transition-colors p-1"
+                  aria-label="YouTube"
+                  title="YouTube"
+                >
+                  <FaYoutube className="w-5 h-5" />
                 </a>
               )}
-              {profile.socialLinks.github && (
-                <a href={profile.socialLinks.github} target="_blank" rel="noopener noreferrer" className="text-nim-text-muted hover:text-nim-text transition-colors">
-                  <Code className="w-5 h-5" />
-                </a>
-              )}
-              {profile.socialLinks.youtube && (
-                <a href={profile.socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="text-nim-text-muted hover:text-nim-text transition-colors">
-                  <Video className="w-5 h-5" />
+              {profile.socialLinks?.github && (
+                <a 
+                  href={getNormalizedUrl('github', profile.socialLinks.github)} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-nim-text-muted hover:text-nim-text transition-colors p-1"
+                  aria-label="GitHub"
+                  title="GitHub"
+                >
+                  <FaGithub className="w-5 h-5" />
                 </a>
               )}
             </div>
@@ -151,6 +217,9 @@ export default function ProfilePage() {
       {isOwnProfile && (
         <MyArtworksSection userId={profile._id} />
       )}
+
+      {/* User's Marketplace Products (Creator Only or has products) */}
+      <MyProductsSection userId={profile._id} isOwnProfile={isOwnProfile} profileName={profile.name} />
 
       {/* Future Sections (Placeholders for Phase 1) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

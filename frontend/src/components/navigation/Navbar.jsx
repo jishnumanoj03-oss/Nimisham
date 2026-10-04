@@ -11,15 +11,18 @@ import {
   User,
   LogOut,
   ChevronDown,
+  ShoppingCart,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
+import { useCart } from '../../context/CartContext';
 import Avatar from '../ui/Avatar';
 import NotificationDropdown from './NotificationDropdown';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { cart } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
@@ -50,10 +53,16 @@ export default function Navbar() {
 
   const navLinks = [
     { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Marketplace', path: '/marketplace' },
     { label: 'Tutorials', path: '/tutorials' },
     { label: 'Resources', path: '/resources' },
     { label: 'AI Prompts', path: '/prompts' },
     { label: 'Portfolios', path: '/portfolios' },
+  ];
+
+  const publicNavLinks = [
+    { label: 'Explore', path: '/search' },
+    { label: 'Marketplace', path: '/marketplace' },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -71,9 +80,27 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav */}
-          {isAuthenticated && (
+          {isAuthenticated ? (
             <div className="hidden lg:flex items-center gap-1">
               {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`
+                    px-3 py-2 rounded-nim-md text-small font-medium transition-colors duration-150
+                    ${isActive(link.path)
+                      ? 'text-nim-accent bg-nim-accent-muted'
+                      : 'text-nim-text-secondary hover:text-nim-text hover:bg-nim-hover'
+                    }
+                  `}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="hidden lg:flex items-center gap-1">
+              {publicNavLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
@@ -104,6 +131,12 @@ export default function Navbar() {
 
             {isAuthenticated ? (
               <>
+                <Link to="/cart" className="relative p-2 rounded-nim-md text-nim-text-muted hover:text-nim-text hover:bg-nim-hover transition-colors">
+                  <ShoppingCart className="w-5 h-5" />
+                  {cart?.length > 0 && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-nim-error rounded-full"></span>
+                  )}
+                </Link>
                 <NotificationDropdown />
                 
                 {/* Profile dropdown */}
@@ -155,11 +188,25 @@ export default function Navbar() {
                             Write Tutorial
                           </Link>
                           <Link
-                            to="/resources/upload"
+                            to="/dashboard/purchases"
                             className="flex items-center gap-3 px-4 py-2.5 text-small text-nim-text-secondary hover:bg-nim-hover hover:text-nim-text transition-colors"
                           >
-                            Upload Resource
+                            My Purchases
                           </Link>
+                          <Link
+                            to="/dashboard/orders"
+                            className="flex items-center gap-3 px-4 py-2.5 text-small text-nim-text-secondary hover:bg-nim-hover hover:text-nim-text transition-colors"
+                          >
+                            My Orders
+                          </Link>
+                          {user?.role === 'creator' && (
+                            <Link
+                              to="/seller/dashboard"
+                              className="flex items-center gap-3 px-4 py-2.5 text-small text-nim-accent hover:bg-nim-hover transition-colors font-medium"
+                            >
+                              Seller Dashboard
+                            </Link>
+                          )}
                           <button
                             onClick={handleLogout}
                             className="flex items-center gap-3 px-4 py-2.5 text-small text-nim-error hover:bg-nim-error/5 w-full text-left transition-colors"
@@ -203,7 +250,7 @@ export default function Navbar() {
 
         {/* Mobile Nav */}
         <AnimatePresence>
-          {mobileOpen && isAuthenticated && (
+          {mobileOpen && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
@@ -212,7 +259,7 @@ export default function Navbar() {
               className="lg:hidden overflow-hidden border-t border-nim-border"
             >
               <div className="py-3 space-y-1">
-                {navLinks.map((link) => (
+                {(isAuthenticated ? navLinks : publicNavLinks).map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
@@ -227,6 +274,37 @@ export default function Navbar() {
                     {link.label}
                   </Link>
                 ))}
+                
+                {isAuthenticated && (
+                  <div className="mt-4 pt-4 border-t border-nim-border">
+                    <Link
+                      to="/cart"
+                      className="block px-3 py-2.5 rounded-nim-md text-body font-medium text-nim-text-secondary hover:text-nim-text hover:bg-nim-hover transition-colors"
+                    >
+                      Cart {cart?.length > 0 && <span className="ml-2 bg-nim-error text-white text-xs px-2 py-0.5 rounded-full">{cart.length}</span>}
+                    </Link>
+                    <Link
+                      to="/dashboard/purchases"
+                      className="block px-3 py-2.5 rounded-nim-md text-body font-medium text-nim-text-secondary hover:text-nim-text hover:bg-nim-hover transition-colors"
+                    >
+                      My Purchases
+                    </Link>
+                    <Link
+                      to="/dashboard/orders"
+                      className="block px-3 py-2.5 rounded-nim-md text-body font-medium text-nim-text-secondary hover:text-nim-text hover:bg-nim-hover transition-colors"
+                    >
+                      My Orders
+                    </Link>
+                    {user?.role === 'creator' && (
+                      <Link
+                        to="/seller/dashboard"
+                        className="block px-3 py-2.5 rounded-nim-md text-body font-medium text-nim-accent bg-nim-accent-muted/30 hover:bg-nim-accent-muted transition-colors mt-2"
+                      >
+                        Seller Dashboard
+                      </Link>
+                    )}
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

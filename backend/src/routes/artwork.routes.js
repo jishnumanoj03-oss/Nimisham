@@ -5,6 +5,8 @@ import {
   getArtworkById,
   updateArtwork,
   deleteArtwork,
+  rateArtwork,
+  getArtworkRating,
 } from '../controllers/artwork.controller.js';
 import { protect, authorize } from '../middleware/auth.middleware.js';
 import { upload } from '../middleware/upload.js';
@@ -21,5 +23,10 @@ router
   .get(getArtworkById)
   .put(protect, authorize('creator', 'admin'), upload.single('image'), updateArtwork)
   .delete(protect, authorize('creator', 'admin'), deleteArtwork);
+
+router
+  .route('/:id/rating')
+  .get(getArtworkRating)
+  .post(protect, rateArtwork);
 
 export default router;

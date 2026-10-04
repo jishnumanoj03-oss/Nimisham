@@ -1,12 +1,11 @@
 import Input from '../ui/Input';
-import { Globe, Camera, MessageCircle, Code, Video } from 'lucide-react';
+import { FaWhatsapp, FaInstagram, FaYoutube, FaGithub } from 'react-icons/fa';
 
 const socialFields = [
-  { key: 'website', label: 'Website', icon: Globe, placeholder: 'https://yoursite.com' },
-  { key: 'instagram', label: 'Instagram', icon: Camera, placeholder: 'instagram.com/username' },
-  { key: 'twitter', label: 'Twitter / X', icon: MessageCircle, placeholder: 'x.com/username' },
-  { key: 'github', label: 'GitHub', icon: Code, placeholder: 'github.com/username' },
-  { key: 'youtube', label: 'YouTube', icon: Video, placeholder: 'youtube.com/@channel' },
+  { key: 'whatsapp', label: 'WhatsApp', icon: FaWhatsapp, placeholder: '+91XXXXXXXXXX' },
+  { key: 'instagram', label: 'Instagram', icon: FaInstagram, placeholder: 'https://instagram.com/username' },
+  { key: 'youtube', label: 'YouTube', icon: FaYoutube, placeholder: 'https://youtube.com/@channel' },
+  { key: 'github', label: 'GitHub', icon: FaGithub, placeholder: 'https://github.com/username' },
 ];
 
 export default function SocialLinksInput({ value = {}, onChange }) {

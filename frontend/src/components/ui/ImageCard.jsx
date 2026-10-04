@@ -65,8 +65,17 @@ const ImageCard = ({ artwork, aspectRatio = 'square', onDelete, onEdit }) => {
           </div>
         )}
         
+        {/* Badges / Indicators */}
+        <div className="absolute top-3 left-3 flex flex-col gap-2 z-20 pointer-events-none">
+          {artwork.ratingCount > 0 && artwork.ratingAverage >= 4.5 && artwork.ratingCount >= 5 && (
+            <span className="bg-accent/90 text-white text-xs px-2 py-1 rounded-md shadow-md backdrop-blur-sm flex items-center shadow-accent/20">
+              🔥 Popular
+            </span>
+          )}
+        </div>
+
         {/* Hover content */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-20">
           <p className="text-white font-medium truncate">{artwork.title}</p>
           <div className="flex items-center space-x-2 mt-1">
             <span className="text-xs text-white/80 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md">
@@ -78,6 +87,15 @@ const ImageCard = ({ artwork, aspectRatio = 'square', onDelete, onEdit }) => {
               </span>
             )}
           </div>
+          
+          {/* Rating Info */}
+          {(artwork.ratingCount > 0) && (
+            <div className="flex items-center mt-2 text-xs text-white/90">
+              <span className="text-accent mr-1">★</span>
+              <span className="font-semibold mr-1">{artwork.ratingAverage.toFixed(1)}</span>
+              <span className="text-white/60">· {artwork.ratingCount} {artwork.ratingCount === 1 ? 'rating' : 'ratings'}</span>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

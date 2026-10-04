@@ -37,7 +37,13 @@ export const createProduct = async (req, res, next) => {
 
 export const getProducts = async (req, res, next) => {
   try {
-    const products = await Product.find({ visibility: 'public', status: 'active' })
+    const { seller } = req.query;
+    const query = { visibility: 'public', status: 'active' };
+    if (seller) {
+      query.seller = seller;
+    }
+
+    const products = await Product.find(query)
       .populate('seller', 'name username avatar')
       .sort({ createdAt: -1 });
 

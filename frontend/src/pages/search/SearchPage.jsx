@@ -237,7 +237,8 @@ const SearchPage = () => {
                   { value: 'newest', label: 'Newest First' },
                   { value: 'oldest', label: 'Oldest First' },
                   { value: 'popular', label: 'Most Popular' },
-                  { value: 'most_liked', label: 'Most Liked' }
+                  { value: 'most_liked', label: 'Most Liked' },
+                  { value: 'highest_rated', label: 'Highest Rated' }
                 ]}
               />
             </div>

@@ -24,8 +24,9 @@ export const globalSearch = async (req, res, next) => {
     let sortObj = {};
     if (sort === 'newest') sortObj = { createdAt: -1 };
     else if (sort === 'oldest') sortObj = { createdAt: 1 };
-    else if (sort === 'popular') sortObj = { views: -1 };
+    else if (sort === 'popular') sortObj = { views: -1, likes: -1 };
     else if (sort === 'most_liked') sortObj = { likes: -1 };
+    else if (sort === 'highest_rated') sortObj = { ratingAverage: -1, ratingCount: -1 };
     else sortObj = { createdAt: -1 }; // Default
 
     // Initialize results arrays

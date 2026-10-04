@@ -12,6 +12,7 @@ import BookmarkButton from '../../components/interaction/BookmarkButton';
 import ShareButton from '../../components/interaction/ShareButton';
 import CommentSection from '../../components/interaction/CommentSection';
 import FollowButton from '../../components/interaction/FollowButton';
+import RatingStars from '../../components/interaction/RatingStars';
 
 const ArtworkDetailsPage = () => {
   const { id } = useParams();
@@ -263,6 +264,17 @@ const ArtworkDetailsPage = () => {
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Rating Component */}
+          <div className="bg-bg-secondary p-6 rounded-xl border border-border space-y-4">
+            <h3 className="text-sm font-medium text-text-primary uppercase tracking-wider mb-2">Community Rating</h3>
+            <RatingStars 
+              artworkId={artwork._id} 
+              initialAverage={artwork.ratingAverage} 
+              initialCount={artwork.ratingCount} 
+              currentUser={currentUser} 
+            />
           </div>
 
         </div>
