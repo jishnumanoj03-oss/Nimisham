@@ -1,13 +1,32 @@
 import { useState, useRef, useEffect } from 'react';
 import { aiService } from '../../services/aiService';
-import { MessageCircle, X, Send, User, Bot, Loader2 } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+import { X, Send, User, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import nimishamAiLogo from '../../assets/nimisham-ai-logo.png';
 
 export default function ChatbotWidget() {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  
+  const defaultGreeting = "Hi! I'm Nimisham AI. I can help with photography, AI art, tutorials, creative workflows, and using the platform. How can I help?";
+  
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hi! I'm Nimisham AI. I can help with photography, AI art, tutorials, creative workflows, and using the platform. How can I help?" }
+    { role: 'assistant', content: defaultGreeting }
   ]);
+  
+  useEffect(() => {
+    setMessages(prev => {
+      if (prev.length <= 1) {
+        const greeting = user 
+          ? `Hi, ${user.username}! 👋\nHow can I help you today?`
+          : defaultGreeting;
+        return [{ role: 'assistant', content: greeting }];
+      }
+      return prev;
+    });
+  }, [user]);
+
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
@@ -34,6 +53,7 @@ export default function ChatbotWidget() {
       const reply = await aiService.sendMessage(userMessage.content);
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
     } catch (error) {
+      console.error("AI chatbot request failed:", error);
       setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: `Sorry, I encountered an error: ${error.message}` }
@@ -62,10 +82,10 @@ export default function ChatbotWidget() {
             className="mb-4 w-[350px] sm:w-[400px] h-[500px] max-h-[80vh] flex flex-col bg-nim-bg-elevated border border-nim-border rounded-2xl shadow-xl overflow-hidden"
           >
             {/* Header */}
-            <div className="p-4 bg-nim-primary text-white flex justify-between items-center">
+            <div className="p-4 bg-nim-primary text-nim-text flex justify-between items-center">
               <div>
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <Bot size={20} />
+                  <img src={nimishamAiLogo} alt="Nimisham AI" className="w-6 h-6 object-contain drop-shadow-sm" />
                   Nimisham AI
                 </h3>
                 <p className="text-xs opacity-80">Ask me anything about Nimisham</p>
@@ -93,7 +113,7 @@ export default function ChatbotWidget() {
                         : 'bg-nim-bg-elevated border border-nim-border text-nim-text'
                     }`}
                   >
-                    {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
+                    {msg.role === 'user' ? <User size={16} /> : <img src={nimishamAiLogo} alt="AI" className="w-5 h-5 object-contain" />}
                   </div>
                   <div
                     className={`max-w-[75%] px-4 py-2 rounded-2xl ${
@@ -109,7 +129,7 @@ export default function ChatbotWidget() {
               {isLoading && (
                 <div className="flex gap-3 flex-row">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-nim-bg-elevated border border-nim-border text-nim-text">
-                    <Bot size={16} />
+                    <img src={nimishamAiLogo} alt="AI" className="w-5 h-5 object-contain" />
                   </div>
                   <div className="max-w-[75%] px-4 py-3 rounded-2xl bg-nim-bg-elevated border border-nim-border text-nim-text rounded-tl-none flex items-center gap-2">
                     <Loader2 size={16} className="animate-spin text-nim-primary" />
@@ -150,10 +170,10 @@ export default function ChatbotWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 bg-nim-primary text-white rounded-full shadow-xl flex items-center justify-center hover:bg-nim-primary-hover transition-colors"
+        className="w-14 h-14 bg-nim-primary text-nim-text rounded-full shadow-xl flex items-center justify-center hover:bg-nim-primary-hover transition-colors overflow-hidden"
         aria-label="Toggle AI Chat"
       >
-        {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
+        {isOpen ? <X size={24} /> : <img src={nimishamAiLogo} alt="Nimisham AI Assistant" className="w-full h-full object-contain" />}
       </motion.button>
     </div>
   );

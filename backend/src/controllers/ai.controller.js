@@ -28,19 +28,23 @@ export const chatWithAI = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Message is too long' });
     }
 
+    console.log(`[AI Controller] Received chat request. Message length: ${trimmedMessage.length}`);
+    console.log(`[AI Controller] GEMINI_API_KEY configured: ${!!ai}`);
+
     if (!ai) {
-      console.error('AI chat requested but GEMINI_API_KEY is missing');
+      console.error('[AI Controller] AI chat requested but GEMINI_API_KEY is missing');
       return res.status(500).json({ success: false, message: 'AI service is currently unavailable (Missing API Key configuration)' });
     }
 
-    // Call Gemini API
+    console.log('[AI Controller] Starting Gemini API request...');
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.8-flash',
       contents: trimmedMessage,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
       }
     });
+    console.log('[AI Controller] Gemini API request completed successfully.');
 
     const reply = response.text || '';
 
@@ -52,7 +56,10 @@ export const chatWithAI = async (req, res, next) => {
     });
 
   } catch (error) {
-    console.error('Error in chatWithAI:', error);
+    console.error('[AI Controller] Gemini API error:', error.message);
+    if (error.status) {
+      console.error('[AI Controller] Gemini API error status:', error.status);
+    }
     
     // Check for rate limit or specific Gemini errors if possible
     if (error.status === 429 || error?.message?.includes('429')) {
